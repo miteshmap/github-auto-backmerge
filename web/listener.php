@@ -5,6 +5,8 @@
  * This is the wrapper listener for Github webhooks.
  */
 
+include_once 'push.php';
+
 webhook_push_callback('');
 return;
 
