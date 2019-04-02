@@ -1,5 +1,5 @@
 {
     "require": {
-        "consolidation/robo": "^1.4"
+        "czproject/git-php": "^3.17"
     }
 }
