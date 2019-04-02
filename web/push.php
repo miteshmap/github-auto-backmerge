@@ -4,5 +4,5 @@
 use Cz\Git\GitRepository;
 
 function webhook_push_callback($payload) {
-  $repo = GitRepository::cloneRepository('https://github.com/acquia-pso/alshaya', '/tmp/alshaya');
+  $repo = GitRepository::cloneRepository('https://alshaya-github-bot:Alshaya@2019&github.com/acquia-pso/alshaya', '/tmp/alshaya');
 }
