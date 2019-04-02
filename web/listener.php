@@ -5,6 +5,8 @@
  * This is the wrapper listener for Github webhooks.
  */
 
+require_once __DIR__ . '../vendor/autoload.php';
+
 include_once 'push.php';
 
 webhook_push_callback('');
