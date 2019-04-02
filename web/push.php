@@ -1,6 +1,5 @@
 <?php
 
-
 use Cz\Git\GitRepository;
 
 function webhook_push_callback($payload) {
