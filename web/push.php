@@ -36,8 +36,13 @@ function webhook_push_callback($payload) {
   }
 
   foreach ($target_branches as $branch) {
-    $str = $repo->execute(['reset', '--hard', 'origin/' . $branch]);
+    // @TODO: Detect failure.
+    $repo->execute(['reset', '--hard', 'origin/' . $branch]);
+
+    $str = $repo->execute(['rebase', 'origin/' . $ref]);
     error_log(var_export($str, 1));
+
+    $repo->push();
   }
 
   //error_log('We will try to backmerge to following branches:');
