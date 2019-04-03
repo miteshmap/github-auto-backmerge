@@ -36,11 +36,21 @@ function webhook_push_callback($payload) {
   }
 
   foreach ($target_branches as $branch) {
+    $str = $repo->execute(['status']);
+    error_log(var_export($str, 1));
+
     // @TODO: Detect failure.
     $str = $repo->execute(['reset', '--hard', 'origin/' . $branch]);
+    error_log(var_export($str, 1));
+
+    $str = $repo->execute(['status']);
+    error_log(var_export($str, 1));
 
     // @TODO: Detect conflicts.
     $str = $repo->execute(['rebase', 'origin/' . $ref]);
+    error_log(var_export($str, 1));
+
+    $str = $repo->execute(['status']);
     error_log(var_export($str, 1));
 
     $str = $repo->execute(['push', 'origin', $branch]);
