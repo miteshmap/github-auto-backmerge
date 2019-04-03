@@ -9,8 +9,8 @@ require(__DIR__ . '/../vendor/autoload.php');
 
 include_once 'push.php';
 
-webhook_push_callback('');
-return;
+//webhook_push_callback('');
+//return;
 
 
 // Send a response so we don't trigger Github timeout.
@@ -33,9 +33,6 @@ if (!$payload) {
   error_log('Not able to get the payload from ' . $_SERVER['HTTP_X_GITHUB_DELIVERY'] . ' request.');
   return;
 }
-
-error_log(var_export($payload, 1));
-error_log('test');
 
 // Decode the payload.
 $payload = json_decode($payload);
