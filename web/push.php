@@ -19,14 +19,14 @@ function webhook_push_callback($payload) {
   error_log('Remote branches');
   error_log(var_export($branches, 1));
 
-  array_walk($branches, function (&$item) {
-    return str_replace('origin/HEAD -> ', '', $item);
+  array_walk($branches, function (&$branch) {
+    $branch = str_replace('origin/HEAD -> ', '', $branch);
   });
 
   error_log(var_export($branches, 1));
 
   foreach ($branches as $branch) {
-    
+
   }
 }
 
