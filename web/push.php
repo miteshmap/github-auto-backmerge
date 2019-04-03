@@ -21,6 +21,7 @@ function webhook_push_callback($payload) {
 
   array_walk($branches, function (&$branch) {
     $branch = str_replace('origin/HEAD -> ', '', $branch);
+    $branch = str_replace('origin/', '', $branch);
   });
 
   error_log(var_export($branches, 1));
