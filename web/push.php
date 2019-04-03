@@ -36,6 +36,8 @@ function webhook_push_callback($payload) {
   }
 
   foreach ($target_branches as $branch) {
+    $repo->checkout($branch);
+
     $str = $repo->execute(['status']);
     error_log(var_export($str, 1));
 
