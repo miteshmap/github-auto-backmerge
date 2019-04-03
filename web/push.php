@@ -42,7 +42,7 @@ function webhook_push_callback($payload) {
     $str = $repo->execute(['rebase', 'origin/' . $ref]);
     error_log(var_export($str, 1));
 
-    $repo->push();
+    $repo->push('origin');
   }
 
   //error_log('We will try to backmerge to following branches:');
