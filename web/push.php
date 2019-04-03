@@ -9,7 +9,7 @@ function webhook_push_callback($payload) {
 
   try {
     $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
-    var_dump($payload);
+    error_log(var_export($payload, 1));
     $repo->fetch();
   }
   catch (Exception $e) {
