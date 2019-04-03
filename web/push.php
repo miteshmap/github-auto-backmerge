@@ -39,10 +39,17 @@ function webhook_push_callback($payload) {
     // @TODO: Detect failure.
     $repo->execute(['reset', '--hard', 'origin/' . $branch]);
 
+    // @TODO: Detect conflicts.
     $str = $repo->execute(['rebase', 'origin/' . $ref]);
     error_log(var_export($str, 1));
 
-    $repo->push('origin');
+    try {
+      $repo->push('origin');
+    }
+    catch (Exception $e) {
+      error_log(var_export($e, 1));
+    }
+
   }
 
   //error_log('We will try to backmerge to following branches:');
