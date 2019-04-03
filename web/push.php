@@ -15,10 +15,10 @@ function webhook_push_callback($payload) {
   $repo = init_git_repository();
   $branches = $repo->getBranches();
 
-  error_log(var_export($branches));
+  error_log(var_export($branches, 1));
 
   foreach ($branches as $branch) {
-    
+
   }
 }
 
