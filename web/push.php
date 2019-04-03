@@ -33,11 +33,17 @@ function webhook_push_callback($payload) {
   error_log(var_export($branches, 1));
 
   foreach ($branches as $branch) {
+    error_log('');
+    error_log($branch);
+    error_log($ref);
+    error_log(substr($branch, 0, strlen($ref)));
+
     if ($ref != $branch && substr($branch, 0, strlen($ref)) == $ref) {
       $target_branches[] = $branch;
     }
   }
 
+  error_log('');
   error_log(var_export($target_branches));
 }
 
