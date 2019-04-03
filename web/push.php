@@ -2,6 +2,7 @@
 
 use Cz\Git\GitRepository;
 
+global $upstream_branches;
 $upstream_branches = [
   'master' => 'uat',
   'uat' => 'qa',
@@ -9,8 +10,13 @@ $upstream_branches = [
 ];
 
 function webhook_push_callback($payload) {
+  global $upstream_branches;
+
   // Get the source branch from the payload.
-  $branch = str_replace('refs/heads/', '', $payload->ref);
+  $ref = str_replace('refs/heads/', '', $payload->ref);
+
+  // Identify the default target branch if any.
+  $target_branches = isset($upstream_branches[$ref]) ? [$upstream_branches[$ref]] : [];
 
   $repo = init_git_repository();
 
@@ -27,8 +33,12 @@ function webhook_push_callback($payload) {
   error_log(var_export($branches, 1));
 
   foreach ($branches as $branch) {
-
+    if ($ref != $branch && substr($branch, 0, strlen($ref)) == $ref) {
+      $target_branches[] = $branch;
+    }
   }
+
+  error_log(var_export($target_branches));
 }
 
 function init_git_repository() {
