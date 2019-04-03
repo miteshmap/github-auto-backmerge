@@ -13,24 +13,20 @@ function webhook_push_callback($payload) {
   $branch = str_replace('refs/heads/', '', $payload->ref);
 
   $repo = init_git_repository();
-  $branches = $repo->getBranches();
-
-  error_log('branches');
-  error_log(var_export($branches, 1));
-
-  $branches = $repo->getLocalBranches();
-
-  error_log('Local branches');
-  error_log(var_export($branches, 1));
 
   $branches = $repo->getRemoteBranches();
 
   error_log('Remote branches');
   error_log(var_export($branches, 1));
 
+  array_walk($branches, function (&$item) {
+    return str_replace('origin/HEAD -> ', '', $item);
+  });
+
+  error_log(var_export($branches, 1));
 
   foreach ($branches as $branch) {
-
+    
   }
 }
 
