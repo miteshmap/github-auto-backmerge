@@ -3,14 +3,15 @@
 use Cz\Git\GitRepository;
 
 function webhook_push_callback($payload) {
+  error_log(var_export($payload, 1));
+  error_log('ici');
+
   $dir = '/tmp/alshaya';
 
   delete_directory($dir);
 
   try {
     $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
-    error_log(var_export($payload, 1));
-    $repo->fetch();
   }
   catch (Exception $e) {
     var_dump($e);
