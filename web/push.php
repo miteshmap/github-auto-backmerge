@@ -36,7 +36,7 @@ function webhook_push_callback($payload) {
   }
 
   foreach ($target_branches as $branch) {
-    $str = $repo->execute('reset --hard origin/' . $branch);
+    $str = $repo->execute(['reset', '--hard', 'origin/' . $branch]);
     error_log(var_export($str, 1));
   }
 
