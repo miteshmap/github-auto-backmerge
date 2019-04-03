@@ -5,12 +5,10 @@ use Cz\Git\GitRepository;
 function webhook_push_callback($payload) {
   $dir = '/tmp/alshaya';
 
-  if (is_dir($dir)) {
-    rmdir($dir);
-  }
+  delete_directory($dir);
 
   try {
-    $repo = GitRepository::cloneRepository('git+ssh://git@github.com:vbouchet31/test-php-git.git', $dir);
+    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
     var_dump($payload);
     $repo->fetch();
   }
@@ -18,4 +16,27 @@ function webhook_push_callback($payload) {
     var_dump($e);
   }
 
+}
+
+function delete_directory($dir) {
+  if (!file_exists($dir)) {
+    return true;
+  }
+
+  if (!is_dir($dir)) {
+    return unlink($dir);
+  }
+
+  foreach (scandir($dir) as $item) {
+    if ($item == '.' || $item == '..') {
+      continue;
+    }
+
+    if (!delete_directory($dir . DIRECTORY_SEPARATOR . $item)) {
+      return false;
+    }
+
+  }
+
+  return rmdir($dir);
 }
