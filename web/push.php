@@ -20,28 +20,28 @@ function webhook_push_callback($payload) {
 
   $repo = init_git_repository();
 
+  // Get all the remote branches so we can identify the ones to back-merge to.
   $branches = $repo->getRemoteBranches();
 
-  error_log('Remote branches');
-  error_log(var_export($branches, 1));
-
+  // Sanitize and normalize branches naming.
   array_walk($branches, function (&$branch) {
     $branch = str_replace('origin/HEAD -> ', '', $branch);
     $branch = str_replace('origin/', '', $branch);
   });
 
-  error_log(var_export($branches, 1));
-
   foreach ($branches as $branch) {
-    error_log(substr($branch, 0, strlen($ref)));
-
     if ($ref != $branch && substr($branch, 0, strlen($ref)) == $ref) {
       $target_branches[] = $branch;
     }
   }
 
-  error_log('We will try to backmerge to following branches:');
-  error_log(var_export($target_branches, 1));
+  foreach ($target_branches as $branch) {
+    $str = $repo->execute('reset --hard origin/' . $branch);
+    error_log(var_export($str, 1));
+  }
+
+  //error_log('We will try to backmerge to following branches:');
+  //error_log(var_export($target_branches, 1));
 }
 
 function init_git_repository() {
