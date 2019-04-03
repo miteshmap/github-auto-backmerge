@@ -34,6 +34,8 @@ if (!$payload) {
   return;
 }
 
+error_log(var_export($payload));
+
 // Decode the payload.
 $payload = json_decode($payload);
 
