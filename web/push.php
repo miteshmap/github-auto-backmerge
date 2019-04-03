@@ -33,9 +33,6 @@ function webhook_push_callback($payload) {
   error_log(var_export($branches, 1));
 
   foreach ($branches as $branch) {
-    error_log('');
-    error_log($branch);
-    error_log($ref);
     error_log(substr($branch, 0, strlen($ref)));
 
     if ($ref != $branch && substr($branch, 0, strlen($ref)) == $ref) {
@@ -43,8 +40,8 @@ function webhook_push_callback($payload) {
     }
   }
 
-  error_log('');
-  error_log(var_export($target_branches));
+  error_log('We will try to backmerge to following branches:');
+  error_log(var_export($target_branches, 1));
 }
 
 function init_git_repository() {
