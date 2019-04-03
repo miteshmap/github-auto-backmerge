@@ -44,7 +44,7 @@ function webhook_push_callback($payload) {
     error_log(var_export($str, 1));
 
     try {
-      $repo->push('origin');
+      $repo->push('origin', [$branch]);
     }
     catch (Exception $e) {
       error_log(var_export($e, 1));
