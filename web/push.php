@@ -25,6 +25,22 @@ class OwnGitRepository extends GitRepository {
 
     return $result;
   }
+
+  protected function run($cmd/*, $options = NULL*/)
+  {
+    $args = func_get_args();
+    $cmd = self::processCommand($args);
+    exec($cmd . ' 2>&1', $output, $ret);
+
+    error_log(var_export($output, 1));
+
+    if($ret !== 0)
+    {
+      throw new GitException("Command '$cmd' failed (exit-code $ret).", $ret);
+    }
+
+    return $this;
+  }
 }
 
 function webhook_push_callback($payload) {
