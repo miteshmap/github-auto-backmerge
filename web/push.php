@@ -64,7 +64,14 @@ function webhook_push_callback($payload) {
     error_log('Back-merging ' . $ref . ' into ' . $branch . '.');
 
     // Checkout the target branch.
-    $repo->checkout($branch);
+    try {
+      $repo->checkout($branch);
+    }
+    catch (GitException $e) {
+      error_log('Impossible to checkout branch ' .$branch . '.');
+      error_log($e->getMessage());
+    }
+
 
     // Hard reset the repo to the target branch so directory is clean.
     // @TODO: Detect failure (is it even possible ?).
@@ -80,6 +87,7 @@ function webhook_push_callback($payload) {
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
+      error_log($e->getMessage());
       //error_log(var_export($e, 1));
       continue;
     }
@@ -91,6 +99,7 @@ function webhook_push_callback($payload) {
     catch (GitException $e) {
       // @TODO: Notify about the error. Concurrent merges?
       error_log('Impossible to push into ' . $branch);
+      error_log($e->getMessage());
       continue;
     }
   }
