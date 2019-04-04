@@ -94,7 +94,7 @@ function webhook_push_callback($payload) {
   error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches) . '.');
 
   // Browse all the target branches to back merge and push to the repository.
-  foreach ($target_branches as $branch) {
+  foreach (array_reverse($target_branches) as $branch) {
     error_log('Back-merging ' . $ref . ' into ' . $branch . '.');
 
     // Checkout the target branch.
@@ -121,19 +121,14 @@ function webhook_push_callback($payload) {
       continue;
     }
 
-    $str = '';
-
     // Pull the parent branch into the target branch.
     // @TODO: Investigate the true difference with rebase.
     try {
-      $str = $repo->pull('origin', [$ref]);
       error_log('Pull branch ' . $ref . ' into ' . $branch);
-      //$str = $repo->execute(['pull', 'origin', $ref]);
-      //error_log(var_export($str, 1));
+      $repo->pull('origin', [$ref]);
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
-      //error_log(var_export($str, 1));
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
       //error_log($e->getMessage());
       $str = $repo->execute(['status']);
