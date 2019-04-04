@@ -133,6 +133,7 @@ function webhook_push_callback($payload) {
       //error_log($e->getMessage());
       $str = $repo->execute(['status']);
       error_log(var_export($str, 1));
+      $repo->execute(['merge', '--abort']);
       //error_log(var_export($e->getTrace(), 1));
       continue;
     }
