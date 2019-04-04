@@ -65,6 +65,7 @@ function webhook_push_callback($payload) {
 
     // Checkout the target branch.
     try {
+      error_log('Checkout branch ' . $branch);
       $repo->checkout($branch);
     }
     catch (GitException $e) {
@@ -76,7 +77,15 @@ function webhook_push_callback($payload) {
 
     // Hard reset the repo to the target branch so directory is clean.
     // @TODO: Detect failure (is it even possible ?).
-    $repo->execute(['reset', '--hard', 'origin/' . $branch]);
+    try {
+      error_log('Reset branch ' . $branch . '.');
+      $repo->execute(['reset', '--hard', 'origin/' . $branch]);
+    }
+    catch (GitException $e) {
+      error_log('Impossible to hard reset branch ' . $branch . '.');
+      error_log($e->getMessage());
+      continue;
+    }
 
     // Pull the parent branch into the target branch.
     // @TODO: Investigate the true difference with rebase.
@@ -89,7 +98,6 @@ function webhook_push_callback($payload) {
       // @TODO: Notify about the conflicts.
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
       error_log($e->getMessage());
-      //error_log(var_export($e, 1));
       continue;
     }
 
