@@ -14,13 +14,12 @@ class OwnGitRepository extends GitRepository {
   public function pull($remote = NULL, array $params = NULL) {
 
     error_log('PULL');
-    if(!is_array($params))
-    {
+    if(!is_array($params)) {
       $params = array();
     }
 
     $this->begin();
-    $result = $this->run("git pull $remote", $params);
+    $result = $this->run('git pull ' . $remote, $params);
     $this->end();
 
     return $result;
@@ -137,6 +136,8 @@ function webhook_push_callback($payload) {
       error_log(var_export($str, 1));
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
       error_log($e->getMessage());
+      $str = $repo->execute(['status']);
+      error_log(var_export($str, 1));
       //error_log(var_export($e->getTrace(), 1));
       continue;
     }
