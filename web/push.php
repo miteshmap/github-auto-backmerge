@@ -53,6 +53,7 @@ function webhook_push_callback($payload) {
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
+      error_log(var_export($e, 1));
       continue;
     }
 
