@@ -58,8 +58,16 @@ function webhook_push_callback($payload) {
     $str = $repo->execute(['status']);
     error_log(var_export($str, 1));
 
-    //$str = $repo->execute(['push', 'origin', $branch]);
-    //error_log(var_export($str, 1));
+    try {
+      $str = $repo->execute(['push', 'origin', $branch]);
+      error_log(var_export($str, 1));
+    }
+    catch (GitException $e) {
+      error_log(var_export($e, 1));
+      continue;
+    }
+
+
 
     /*try {
       $repo->push('origin', [$branch]);
