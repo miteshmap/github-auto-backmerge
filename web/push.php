@@ -37,6 +37,8 @@ function webhook_push_callback($payload) {
     }
   }
 
+  error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches));
+
   foreach ($target_branches as $branch) {
     $repo->checkout($branch);
 
