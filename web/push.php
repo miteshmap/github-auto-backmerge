@@ -92,6 +92,7 @@ function webhook_push_callback($payload) {
     try {
       //$repo->pull('origin', [$ref]);
       error_log('Pull branch ' . $ref . ' into ' . $branch);
+      $str = '';
       $str = $repo->execute(['pull', 'origin', $ref]);
       error_log(var_export($str, 1));
     }
