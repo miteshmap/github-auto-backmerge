@@ -130,11 +130,15 @@ function webhook_push_callback($payload) {
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
-      //error_log($e->getMessage());
+
       $str = $repo->execute(['status']);
       error_log(var_export($str, 1));
+
+      $str = $repo->execute(['diff', '--name-only', '--diff-filter=U']);
+      error_log(var_export($str, 1));
+
       $repo->execute(['merge', '--abort']);
-      //error_log(var_export($e->getTrace(), 1));
+
       continue;
     }
 
