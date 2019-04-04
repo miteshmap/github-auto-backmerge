@@ -10,6 +10,21 @@ $upstream_branches = [
   'qa' => 'develop',
 ];
 
+class OwnGitRepository extends GitRepository {
+  public function pull($remote = NULL, array $params = NULL) {
+    if(!is_array($params))
+    {
+      $params = array();
+    }
+
+    $this->begin();
+    $result = $this->run("git pull $remote", $params);
+    $this->end();
+
+    return $result;
+  }
+}
+
 function webhook_push_callback($payload) {
   $dir = '/tmp/' . uniqid('alshaya-');
 
@@ -92,17 +107,17 @@ function webhook_push_callback($payload) {
     // Pull the parent branch into the target branch.
     // @TODO: Investigate the true difference with rebase.
     try {
-      $repo->pull('origin', [$ref]);
+      $str = $repo->pull('origin', [$ref]);
       error_log('Pull branch ' . $ref . ' into ' . $branch);
       //$str = $repo->execute(['pull', 'origin', $ref]);
-      //error_log(var_export($str, 1));
+      error_log(var_export($str, 1));
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
       error_log(var_export($str, 1));
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
       error_log($e->getMessage());
-      error_log(var_export($e->getTrace(), 1));
+      //error_log(var_export($e->getTrace(), 1));
       continue;
     }
 
