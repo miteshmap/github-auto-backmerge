@@ -33,7 +33,7 @@ function webhook_push_callback($payload) {
 
   // Clone the repository into the target directory.
   try {
-    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
+    $repo = OwnGitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
     $repo->fetch();
   }
   catch (Exception $e) {
