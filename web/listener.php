@@ -17,8 +17,6 @@ include_once 'push.php';
 echo 'OK';
 fastcgi_finish_request();
 
-exit;
-
 // Detect the payload as it may varies depending the request's content type.
 $payload = FALSE;
 switch ($_SERVER['CONTENT_TYPE']) {

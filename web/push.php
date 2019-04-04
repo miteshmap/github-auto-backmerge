@@ -9,6 +9,7 @@ $upstream_branches = [
   'uat' => 'qa',
   'qa' => 'develop',
 ];
+$upstream_branches = [];
 
 function webhook_push_callback($payload) {
   global $upstream_branches;
@@ -44,7 +45,8 @@ function webhook_push_callback($payload) {
     error_log(var_export($str, 1));
 
     try {
-      $str = $repo->execute(['rebase', 'origin/' . $ref]);
+      $str = $repo->pull('origin', [$ref]);
+      //$str = $repo->execute(['rebase', 'origin/' . $ref]);
       error_log(var_export($str, 1));
     }
     catch (GitException $e) {
@@ -56,8 +58,8 @@ function webhook_push_callback($payload) {
     $str = $repo->execute(['status']);
     error_log(var_export($str, 1));
 
-    $str = $repo->execute(['push', 'origin', $branch]);
-    error_log(var_export($str, 1));
+    //$str = $repo->execute(['push', 'origin', $branch]);
+    //error_log(var_export($str, 1));
 
     /*try {
       $repo->push('origin', [$branch]);
