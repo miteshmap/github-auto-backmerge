@@ -11,7 +11,7 @@ $upstream_branches = [
 ];
 
 class OwnGitRepository extends GitRepository {
-  public function pull($remote = NULL, array $params = NULL) {
+  /*public function pull($remote = NULL, array $params = NULL) {
 
     error_log('PULL');
     if(!is_array($params)) {
@@ -23,10 +23,10 @@ class OwnGitRepository extends GitRepository {
     $this->end();
 
     return $result;
-  }
+  }*/
 
-  protected function run($cmd/*, $options = NULL*/)
-  {
+  /*
+  protected function run($cmd) {
     $args = func_get_args();
     $cmd = self::processCommand($args);
     exec($cmd . ' 2>&1', $output, $ret);
@@ -39,7 +39,7 @@ class OwnGitRepository extends GitRepository {
     }
 
     return $this;
-  }
+  }*/
 }
 
 function webhook_push_callback($payload) {
@@ -129,13 +129,13 @@ function webhook_push_callback($payload) {
       $str = $repo->pull('origin', [$ref]);
       error_log('Pull branch ' . $ref . ' into ' . $branch);
       //$str = $repo->execute(['pull', 'origin', $ref]);
-      error_log(var_export($str, 1));
+      //error_log(var_export($str, 1));
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
-      error_log(var_export($str, 1));
+      //error_log(var_export($str, 1));
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
-      error_log($e->getMessage());
+      //error_log($e->getMessage());
       $str = $repo->execute(['status']);
       error_log(var_export($str, 1));
       //error_log(var_export($e->getTrace(), 1));
