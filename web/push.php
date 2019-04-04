@@ -59,7 +59,8 @@ function webhook_push_callback($payload) {
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
-      error_log(var_export($e, 1));
+      error_log('Impossible to pull ' . $ref . ' into ' . $branch);
+      //error_log(var_export($e, 1));
       continue;
     }
 
@@ -71,7 +72,8 @@ function webhook_push_callback($payload) {
       error_log(var_export($str, 1));
     }
     catch (GitException $e) {
-      error_log(var_export($e, 1));
+      error_log('Impossible to push into ' . $branch);
+      //error_log(var_export($e, 1));
       continue;
     }
 
