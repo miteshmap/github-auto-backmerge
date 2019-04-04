@@ -12,6 +12,8 @@ $upstream_branches = [
 $upstream_branches = [];
 
 function webhook_push_callback($payload) {
+  $dir = '/tmp/' . uniqid('alshaya-');
+
   global $upstream_branches;
 
   // Get the source branch from the payload.
@@ -20,7 +22,7 @@ function webhook_push_callback($payload) {
   // Identify the default target branch if any.
   $target_branches = isset($upstream_branches[$ref]) ? [$upstream_branches[$ref]] : [];
 
-  $repo = init_git_repository();
+  $repo = init_git_repository($dir);
 
   // Get all the remote branches so we can identify the ones to back-merge to.
   $branches = $repo->getRemoteBranches();
@@ -39,7 +41,7 @@ function webhook_push_callback($payload) {
 
   error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches));
 
-  foreach (array_reverse($target_branches) as $branch) {
+  foreach ($target_branches as $branch) {
     error_log('BRANCH ' . $branch);
 
     $repo->checkout($branch);
@@ -79,12 +81,15 @@ function webhook_push_callback($payload) {
       continue;
     }
   }
+
+  clean_git_repository($dir);
 }
 
-function init_git_repository() {
-  $dir = '/tmp/alshaya';
+function clean_git_repository($dir) {
   delete_directory($dir);
+}
 
+function init_git_repository($dir) {
   $repo = FALSE;
   try {
     $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
