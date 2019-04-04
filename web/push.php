@@ -12,6 +12,8 @@ $upstream_branches = [
 
 class OwnGitRepository extends GitRepository {
   public function pull($remote = NULL, array $params = NULL) {
+
+    error_log('PULL');
     if(!is_array($params))
     {
       $params = array();
