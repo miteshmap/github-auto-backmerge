@@ -95,6 +95,7 @@ function webhook_push_callback($payload) {
 
   // Browse all the target branches to back merge and push to the repository.
   foreach (array_reverse($target_branches) as $branch) {
+    error_log(NULL);
     error_log('Back-merging ' . $ref . ' into ' . $branch . '.');
 
     // Checkout the target branch.
@@ -131,11 +132,13 @@ function webhook_push_callback($payload) {
       // @TODO: Notify about the conflicts.
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
 
-      $str = $repo->execute(['status']);
-      error_log(var_export($str, 1));
-
       $str = $repo->execute(['diff', '--name-only', '--diff-filter=U']);
       error_log(var_export($str, 1));
+
+      notifySlack(json_encode([
+        'text' => 'Impossible to raise the back-merge *' . $ref . '* into ' . $branch . '.',
+        'mrkdwn' => TRUE,
+      ]));
 
       $repo->execute(['merge', '--abort']);
 
@@ -180,4 +183,27 @@ function delete_directory($dir) {
   }
 
   return rmdir($dir);
+}
+
+/**
+ * Send a message to Slack channel.
+ *
+ * @param string $data
+ */
+function notifySlack($data = '') {
+  if (!empty(getenv('SLACK_HOOK_URL'))) {
+    $ch = curl_init(getenv('SLACK_HOOK_URL'));
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($data))
+    );
+    curl_exec($ch);
+  }
+  else {
+    error_log('Slack hook url is not configured.');
+  }
+
 }
