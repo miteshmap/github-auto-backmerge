@@ -1,6 +1,7 @@
 <?php
 
 use Cz\Git\GitRepository;
+use \Cz\Git\GitException;
 
 global $upstream_branches;
 $upstream_branches = [
@@ -38,19 +39,19 @@ function webhook_push_callback($payload) {
   foreach ($target_branches as $branch) {
     $repo->checkout($branch);
 
-    $str = $repo->execute(['status']);
-    error_log(var_export($str, 1));
-
     // @TODO: Detect failure.
     $str = $repo->execute(['reset', '--hard', 'origin/' . $branch]);
     error_log(var_export($str, 1));
 
-    $str = $repo->execute(['status']);
-    error_log(var_export($str, 1));
+    try {
+      $str = $repo->execute(['rebase', 'origin/' . $ref]);
+      error_log(var_export($str, 1));
+    }
+    catch (GitException $e) {
+      // @TODO: Notify about the conflicts.
+      continue;
+    }
 
-    // @TODO: Detect conflicts.
-    $str = $repo->execute(['rebase', 'origin/' . $ref]);
-    error_log(var_export($str, 1));
 
     $str = $repo->execute(['status']);
     error_log(var_export($str, 1));
