@@ -96,6 +96,7 @@ function webhook_push_callback($payload) {
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
+      error_log(var_export($str, 1));
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
       error_log($e->getMessage());
       continue;
