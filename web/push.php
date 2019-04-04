@@ -87,14 +87,15 @@ function webhook_push_callback($payload) {
       continue;
     }
 
+    $str = '';
+
     // Pull the parent branch into the target branch.
     // @TODO: Investigate the true difference with rebase.
     try {
-      //$repo->pull('origin', [$ref]);
+      $repo->pull('origin', [$ref]);
       error_log('Pull branch ' . $ref . ' into ' . $branch);
-      $str = '';
-      $str = $repo->execute(['pull', 'origin', $ref]);
-      error_log(var_export($str, 1));
+      //$str = $repo->execute(['pull', 'origin', $ref]);
+      //error_log(var_export($str, 1));
     }
     catch (GitException $e) {
       // @TODO: Notify about the conflicts.
