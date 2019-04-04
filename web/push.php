@@ -136,8 +136,14 @@ function webhook_push_callback($payload) {
       error_log(var_export($str, 1));
 
       notifySlack(json_encode([
-        'text' => 'Impossible to raise the back-merge *' . $ref . '* into ' . $branch . '.',
+        'text' => 'Impossible to raise the back-merge *' . $ref . '* into *' . $branch . '*.',
         'mrkdwn' => TRUE,
+        'attachments' => [
+          [
+            'text' => implode($str, "\n"),
+            'color' => 'error',
+          ],
+        ]
       ]));
 
       $repo->execute(['merge', '--abort']);
