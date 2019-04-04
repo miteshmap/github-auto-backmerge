@@ -40,6 +40,8 @@ function webhook_push_callback($payload) {
   error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches));
 
   foreach ($target_branches as $branch) {
+    error_log('BRANCH ' . $branch);
+
     $repo->checkout($branch);
 
     $str = $repo->execute(['status']);
@@ -76,20 +78,7 @@ function webhook_push_callback($payload) {
       //error_log(var_export($e, 1));
       continue;
     }
-
-
-
-    /*try {
-      $repo->push('origin', [$branch]);
-    }
-    catch (Exception $e) {
-      error_log(var_export($e, 1));
-    }*/
-
   }
-
-  //error_log('We will try to backmerge to following branches:');
-  //error_log(var_export($target_branches, 1));
 }
 
 function init_git_repository() {
