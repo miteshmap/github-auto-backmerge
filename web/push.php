@@ -111,7 +111,6 @@ function webhook_push_callback($payload) {
 
 
     // Hard reset the repo to the target branch so directory is clean.
-    // @TODO: Detect failure (is it even possible ?).
     try {
       error_log('Reset branch ' . $branch . '.');
       $repo->execute(['reset', '--hard', 'origin/' . $branch]);
@@ -129,23 +128,28 @@ function webhook_push_callback($payload) {
       $repo->pull('origin', [$ref]);
     }
     catch (GitException $e) {
-      // @TODO: Notify about the conflicts.
       error_log('Impossible to pull ' . $ref . ' into ' . $branch);
 
-      $str = $repo->execute(['diff', '--name-only', '--diff-filter=U']);
-      error_log(var_export($str, 1));
+      // Get the list of conflicting files.
+      $files = $repo->execute(['diff', '--name-only', '--diff-filter=U']);
+      error_log(var_export($files, 1));
 
-      notifySlack(json_encode([
+      // Prepare and send notification to Slack.
+      // @TODO: Add github username from $payload.
+      $slack_message = [
         'text' => 'Impossible to raise the back-merge *' . $ref . '* into *' . $branch . '*.',
         'mrkdwn' => TRUE,
-        'attachments' => [
-          [
-            'text' => implode($str, "\n"),
-            'color' => 'error',
-          ],
-        ]
-      ]));
+      ];
 
+      foreach ($files as $file) {
+        $slack_message['attachments'][] = [
+          'text' => $file,
+          'color' => 'danger',
+        ];
+      }
+      notifySlack(json_encode($slack_message));
+
+      // Abort the merge so repo is cleaned.
       $repo->execute(['merge', '--abort']);
 
       continue;
