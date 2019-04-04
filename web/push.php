@@ -9,10 +9,22 @@ $upstream_branches = [
   'uat' => 'qa',
   'qa' => 'develop',
 ];
-$upstream_branches = [];
 
 function webhook_push_callback($payload) {
   $dir = '/tmp/' . uniqid('alshaya-');
+
+  // Be sure the target directory does not exist yet.
+  delete_directory($dir);
+
+  // Clone the repository into the target directory.
+  try {
+    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
+    $repo->fetch();
+  }
+  catch (Exception $e) {
+    error_log('Impossible to clone repository into ' . $dir . '.');
+    return;
+  }
 
   global $upstream_branches;
 
@@ -22,9 +34,7 @@ function webhook_push_callback($payload) {
   // Identify the default target branch if any.
   $target_branches = isset($upstream_branches[$ref]) ? [$upstream_branches[$ref]] : [];
 
-  $repo = init_git_repository($dir);
-
-  // Get all the remote branches so we can identify the ones to back-merge to.
+  // Get all the remote branches so we can identify the ones to back merge to.
   $branches = $repo->getRemoteBranches();
 
   // Sanitize and normalize branches naming.
@@ -33,32 +43,38 @@ function webhook_push_callback($payload) {
     $branch = str_replace('origin/', '', $branch);
   });
 
+  // Find feature branches based on current branch.
   foreach ($branches as $branch) {
     if ($ref != $branch && substr($branch, 0, strlen($ref)) == $ref) {
       $target_branches[] = $branch;
     }
   }
 
-  error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches));
+  // Stop the process if there no target branch to back merge to.
+  if (empty ($target_branches)) {
+    error_log($ref . ' does not need to be back merged into any branch.');
+    return;
+  }
 
+  // Print all the branches we should back merge to.
+  error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches) . '.');
+
+  // Browse all the target branches to back merge and push to the repository.
   foreach ($target_branches as $branch) {
-    error_log('BRANCH ' . $branch);
+    error_log('Back-merging ' . $ref . ' into ' . $branch . '.');
 
+    // Checkout the target branch.
     $repo->checkout($branch);
 
-    $str = $repo->execute(['status']);
-    error_log(var_export($str, 1));
+    // Hard reset the repo to the target branch so directory is clean.
+    // @TODO: Detect failure (is it even possible ?).
+    $repo->execute(['reset', '--hard', 'origin/' . $branch]);
 
-    // @TODO: Detect failure.
-    $str = $repo->execute(['reset', '--hard', 'origin/' . $branch]);
-    error_log(var_export($str, 1));
-
-    $str = $repo->execute(['status']);
-    error_log(var_export($str, 1));
-
+    // Pull the parent branch into the target branch.
+    // @TODO: Investigate the true difference with rebase.
     try {
-      $str = $repo->pull('origin', [$ref]);
-      //$str = $repo->execute(['rebase', 'origin/' . $ref]);
+      //$repo->pull('origin', [$ref]);
+      $str = $repo->execute(['pull', 'origin', $ref]);
       error_log(var_export($str, 1));
     }
     catch (GitException $e) {
@@ -68,38 +84,23 @@ function webhook_push_callback($payload) {
       continue;
     }
 
-    $str = $repo->execute(['status']);
-    error_log(var_export($str, 1));
-
     try {
       $str = $repo->execute(['push', 'origin', $branch]);
       error_log(var_export($str, 1));
     }
     catch (GitException $e) {
+      // @TODO: Notify about the error. Concurrent merges?
       error_log('Impossible to push into ' . $branch);
-      //error_log(var_export($e, 1));
       continue;
     }
   }
 
-  clean_git_repository($dir);
-}
-
-function clean_git_repository($dir) {
   delete_directory($dir);
 }
 
-function init_git_repository($dir) {
-  $repo = FALSE;
-  try {
-    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
-    $repo->fetch();
-  }
-  catch (Exception $e) {}
-
-  return $repo;
-}
-
+/**
+ * Recursive function delete a directory (and sub-directories).
+ */
 function delete_directory($dir) {
   if (!file_exists($dir)) {
     return true;
@@ -113,7 +114,6 @@ function delete_directory($dir) {
     if ($item == '.' || $item == '..') {
       continue;
     }
-
     if (!delete_directory($dir . DIRECTORY_SEPARATOR . $item)) {
       return false;
     }
