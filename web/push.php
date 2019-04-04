@@ -70,6 +70,7 @@ function webhook_push_callback($payload) {
     catch (GitException $e) {
       error_log('Impossible to checkout branch ' .$branch . '.');
       error_log($e->getMessage());
+      continue;
     }
 
 
