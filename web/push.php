@@ -91,6 +91,7 @@ function webhook_push_callback($payload) {
     // @TODO: Investigate the true difference with rebase.
     try {
       //$repo->pull('origin', [$ref]);
+      error_log('Pull branch ' . $ref . ' into ' . $branch);
       $str = $repo->execute(['pull', 'origin', $ref]);
       error_log(var_export($str, 1));
     }
