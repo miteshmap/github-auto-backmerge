@@ -53,6 +53,8 @@ function webhook_push_callback($payload) {
   try {
     $repo = OwnGitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
     $repo->fetch();
+    $repo->execute(['config', '--local', 'user.name', 'alshaya-github-bot']);
+    $repo->execute(['config', '--local', 'user.email', 'vincent.bouchet+alshaya-github-bot@acquia.com']);
   }
   catch (Exception $e) {
     error_log('Impossible to clone repository into ' . $dir . '.');
