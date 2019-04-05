@@ -136,17 +136,22 @@ function webhook_push_callback($payload) {
 
       // Prepare and send notification to Slack.
       // @TODO: Add github username from $payload.
+      // @TODO: Add a link to the diff on github.
       $slack_message = [
-        'text' => 'Impossible to raise the back-merge *' . $ref . '* into *' . $branch . '*.',
+        'text' => 'Impossible to back-merge *' . $ref . '* into *' . $branch . '*. *@user*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
+        'attachments' => [
+          'text' => implode($files, "\n"),
+          'color' => 'danger',
+        ],
       ];
 
-      foreach ($files as $file) {
+      /*foreach ($files as $file) {
         $slack_message['attachments'][] = [
           'text' => $file,
           'color' => 'danger',
         ];
-      }
+      }*/
       notifySlack(json_encode($slack_message));
 
       // Abort the merge so repo is cleaned.
