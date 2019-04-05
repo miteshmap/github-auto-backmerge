@@ -35,9 +35,6 @@ function webhook_push_callback($payload) {
   // Get the source branch from the payload.
   $ref = str_replace('refs/heads/', '', $payload->ref);
 
-  // Identify the default target branch if any.
-  $target_branches = isset($upstream_branches[$ref]) ? [$upstream_branches[$ref]] : [];
-
   // Get all the remote branches so we can identify the ones to back merge to.
   $branches = $repo->getRemoteBranches();
 
@@ -52,6 +49,11 @@ function webhook_push_callback($payload) {
     if ($ref != $branch && substr($branch, 0, strlen($ref)) == $ref) {
       $target_branches[] = $branch;
     }
+  }
+
+  // Identify the default target branch if any.
+  if (isset($upstream_branches[$ref])) {
+    $target_branches[] = $upstream_branches[$ref];
   }
 
   // Stop the process if there no target branch to back merge to.
