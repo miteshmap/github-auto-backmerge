@@ -11,6 +11,8 @@ $upstream_branches = [
 ];
 
 function webhook_push_callback($payload) {
+  $dry_run = getenv('DRY_RUN') == 'true' ? TRUE : FALSE;
+
   $dir = '/tmp/' . uniqid('alshaya-');
 
   // Be sure the target directory does not exist yet.
@@ -62,7 +64,7 @@ function webhook_push_callback($payload) {
   error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches) . '.');
 
   // Browse all the target branches to back merge and push to the repository.
-  foreach (array_reverse($target_branches) as $branch) {
+  foreach ($target_branches as $branch) {
     error_log(NULL);
     error_log('Back-merging ' . $ref . ' into ' . $branch . '.');
 
@@ -103,8 +105,6 @@ function webhook_push_callback($payload) {
       error_log(var_export($files, 1));
 
       // Prepare and send notification to Slack.
-      // @TODO: Add github username from $payload.
-      // @TODO: Add a link to the diff on github.
       $slack_message = [
         'text' => 'Impossible to back-merge <https://github.com/' . getenv('GITHUB_REPO_ORG') . '/' . getenv('GITHUB_REPO_NAME') . '/compare/' . $branch . '...' . $ref . '?expand=1|*' . $ref . '* into *' . $branch . '*>. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
@@ -123,16 +123,20 @@ function webhook_push_callback($payload) {
       continue;
     }
 
-    try {
-      $str = $repo->execute(['push', 'origin', $branch]);
-      error_log(var_export($str, 1));
+    if (!$dry_run) {
+      try {
+        $repo->execute(['push', 'origin', $branch]);
+      }
+      catch (GitException $e) {
+        // @TODO: Notify about the error. Concurrent merges?
+        error_log('Impossible to push into ' . $branch);
+        continue;
+      }
     }
-    catch (GitException $e) {
-      // @TODO: Notify about the error. Concurrent merges?
-      error_log('Impossible to push into ' . $branch);
-      error_log($e->getMessage());
-      continue;
+    else {
+      error_log('Running in dry-run mode so we don\'t push anything.');
     }
+
   }
 
   delete_directory($dir);

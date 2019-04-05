@@ -37,8 +37,6 @@ if (!$payload) {
 // Decode the payload.
 $payload = json_decode($payload);
 
-error_log(var_export($payload, 1));
-
 // Detect the webhook event type and trigger proper process.
 switch($_SERVER['HTTP_X_GITHUB_EVENT']) {
   case 'push':
