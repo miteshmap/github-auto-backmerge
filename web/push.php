@@ -106,7 +106,7 @@ function webhook_push_callback($payload) {
       // @TODO: Add github username from $payload.
       // @TODO: Add a link to the diff on github.
       $slack_message = [
-        'text' => 'Impossible to back-merge <https://github.com/acquia-pso/alshaya/compare/' . $branch . '...' . $ref . '?expand=1|*' . $ref . '* into *' . $branch . '*>. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
+        'text' => 'Impossible to back-merge <https://github.com/' . getenv('GITHUB_REPO_ORG') . '/' . getenv('GITHUB_REPO_NAME') . '/compare/' . $branch . '...' . $ref . '?expand=1|*' . $ref . '* into *' . $branch . '*>. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
         'attachments' => [
           [
