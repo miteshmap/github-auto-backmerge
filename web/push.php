@@ -18,10 +18,10 @@ function webhook_push_callback($payload) {
 
   // Clone the repository into the target directory.
   try {
-    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
+    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/' . getenv('GITHUB_REPO_ORG') . '/' . getenv('GITHUB_REPO_NAME') . '.git', $dir);
     $repo->fetch();
-    $repo->execute(['config', '--local', 'user.name', 'alshaya-github-bot']);
-    $repo->execute(['config', '--local', 'user.email', 'vincent.bouchet+alshaya-github-bot@acquia.com']);
+    $repo->execute(['config', '--local', 'user.name', getenv('GITHUB_USERNAME')]);
+    $repo->execute(['config', '--local', 'user.email', getenv('GITHUB_EMAIL')]);
   }
   catch (Exception $e) {
     error_log('Impossible to clone repository into ' . $dir . '.');
@@ -106,7 +106,7 @@ function webhook_push_callback($payload) {
       // @TODO: Add github username from $payload.
       // @TODO: Add a link to the diff on github.
       $slack_message = [
-        'text' => 'Impossible to back-merge <http://google.com|*' . $ref . '* into *' . $branch . '*>. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
+        'text' => 'Impossible to back-merge <https://github.com/acquia-pso/alshaya/compare/' . $branch . '...' . $ref . '?expand=1|*' . $ref . '* into *' . $branch . '*>. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
         'attachments' => [
           [
