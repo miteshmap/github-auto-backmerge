@@ -106,7 +106,7 @@ function webhook_push_callback($payload) {
       // @TODO: Add github username from $payload.
       // @TODO: Add a link to the diff on github.
       $slack_message = [
-        'text' => 'Impossible to back-merge *' . $ref . '* into *' . $branch . '*. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
+        'text' => 'Impossible to back-merge <http://google.com|*' . $ref . '* into *' . $branch . '*>. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
         'attachments' => [
           [
