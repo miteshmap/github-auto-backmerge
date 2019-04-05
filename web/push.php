@@ -141,8 +141,10 @@ function webhook_push_callback($payload) {
         'text' => 'Impossible to back-merge *' . $ref . '* into *' . $branch . '*. *@user*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
         'attachments' => [
-          'text' => implode("\n", $files),
-          'color' => 'danger',
+          [
+            'text' => implode("\n", $files),
+            'color' => 'danger',
+          ]
         ],
       ];
 
