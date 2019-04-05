@@ -10,38 +10,6 @@ $upstream_branches = [
   'qa' => 'develop',
 ];
 
-class OwnGitRepository extends GitRepository {
-  /*public function pull($remote = NULL, array $params = NULL) {
-
-    error_log('PULL');
-    if(!is_array($params)) {
-      $params = array();
-    }
-
-    $this->begin();
-    $result = $this->run('git pull ' . $remote, $params);
-    $this->end();
-
-    return $result;
-  }*/
-
-  /*
-  protected function run($cmd) {
-    $args = func_get_args();
-    $cmd = self::processCommand($args);
-    exec($cmd . ' 2>&1', $output, $ret);
-
-    error_log(var_export($output, 1));
-
-    if($ret !== 0)
-    {
-      throw new GitException("Command '$cmd' failed (exit-code $ret).", $ret);
-    }
-
-    return $this;
-  }*/
-}
-
 function webhook_push_callback($payload) {
   $dir = '/tmp/' . uniqid('alshaya-');
 
@@ -50,7 +18,7 @@ function webhook_push_callback($payload) {
 
   // Clone the repository into the target directory.
   try {
-    $repo = OwnGitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
+    $repo = GitRepository::cloneRepository('git+ssh://git@github.com/vbouchet31/test-php-git.git', $dir);
     $repo->fetch();
     $repo->execute(['config', '--local', 'user.name', 'alshaya-github-bot']);
     $repo->execute(['config', '--local', 'user.email', 'vincent.bouchet+alshaya-github-bot@acquia.com']);
@@ -138,7 +106,7 @@ function webhook_push_callback($payload) {
       // @TODO: Add github username from $payload.
       // @TODO: Add a link to the diff on github.
       $slack_message = [
-        'text' => 'Impossible to back-merge *' . $ref . '* into *' . $branch . '*. *@user*, please fix the conflict(s) and raise a pull request.',
+        'text' => 'Impossible to back-merge *' . $ref . '* into *' . $branch . '*. *@' . $payload->commits[0]->author->username . '*, please fix the conflict(s) and raise a pull request.',
         'mrkdwn' => TRUE,
         'attachments' => [
           [
@@ -147,13 +115,6 @@ function webhook_push_callback($payload) {
           ]
         ],
       ];
-
-      /*foreach ($files as $file) {
-        $slack_message['attachments'][] = [
-          'text' => $file,
-          'color' => 'danger',
-        ];
-      }*/
       notifySlack(json_encode($slack_message));
 
       // Abort the merge so repo is cleaned.
@@ -179,6 +140,10 @@ function webhook_push_callback($payload) {
 
 /**
  * Recursive function delete a directory (and sub-directories).
+ *
+ * @param string $dir
+ *
+ * @return bool
  */
 function delete_directory($dir) {
   if (!file_exists($dir)) {
