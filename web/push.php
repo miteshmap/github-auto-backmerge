@@ -132,6 +132,7 @@ function webhook_push_callback($payload) {
 
     if (!$dry_run) {
       try {
+        error_log('Push change to ' . $branch);
         $repo->execute(['push', 'origin', $branch]);
       }
       catch (GitException $e) {
