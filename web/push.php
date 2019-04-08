@@ -70,6 +70,15 @@ function webhook_push_callback($payload) {
   // Print all the branches we should back merge to.
   error_log('We will merge ' . $ref . ' change into following branches: ' . implode(', ', $target_branches) . '.');
 
+  // Add a security to avoid any merge into master. Given it has no parent
+  // branch, it can only happen in case there is a bug in the script.
+  if (in_array('master', $target_branches)) {
+    error_log('');
+    error_log('THERE IS SOMETHING WRONG, WE SHOULD NEVER BACK MERGE INTO MASTER.');
+    error_log('');
+    return;
+  }
+
   // Browse all the target branches to back merge and push to the repository.
   foreach ($target_branches as $branch) {
     error_log(NULL);
