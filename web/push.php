@@ -35,6 +35,11 @@ function webhook_push_callback($payload) {
   // Get the source branch from the payload.
   $ref = str_replace('refs/heads/', '', $payload->ref);
 
+  if (empty($ref)) {
+    error_log('Impossible to identify a valid ref from ' . $payload->ref);
+    return;
+  }
+
   // Get all the remote branches so we can identify the ones to back merge to.
   $branches = $repo->getRemoteBranches();
 
