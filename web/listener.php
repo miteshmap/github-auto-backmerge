@@ -9,10 +9,6 @@ require(__DIR__ . '/../vendor/autoload.php');
 
 include_once 'push.php';
 
-//webhook_push_callback('');
-//return;
-
-
 // Send a response so we don't trigger Github timeout.
 echo 'OK';
 fastcgi_finish_request();

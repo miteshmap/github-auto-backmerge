@@ -3,6 +3,7 @@
 use Cz\Git\GitRepository;
 use \Cz\Git\GitException;
 
+// The default branch hierarchy.
 global $upstream_branches;
 $upstream_branches = [
   'master' => 'uat',
@@ -10,6 +11,13 @@ $upstream_branches = [
   'qa' => 'develop',
 ];
 
+/**
+ * Callback function for push event from Github webhook.
+ *
+ * @param $payload
+ *
+ * @throws \Cz\Git\GitException
+ */
 function webhook_push_callback($payload) {
   $dry_run = getenv('DRY_RUN') == 'true' ? TRUE : FALSE;
 
@@ -208,5 +216,4 @@ function notifySlack($data = '') {
   else {
     error_log('Slack hook url is not configured.');
   }
-
 }
